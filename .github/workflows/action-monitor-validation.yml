@@ -1,0 +1,21 @@
+name: ROS 2 action monitoring validation
+on:
+  push:
+    branches: [validation/ros2-action-monitoring]
+permissions:
+  contents: read
+jobs:
+  jazzy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ROS_DISTRO: jazzy
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run build --workspace=roslib
+      - run: npm test --workspace=roslib -- --run test/examples/action-monitor.example.ts test/action-topics.test.ts test/action-topics-wire.test.ts test/topic.test.ts test/actionSendgoal.test.ts
