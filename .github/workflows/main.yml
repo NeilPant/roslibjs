@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - develop
+      - validation/full-ci-1125
 
 defaults:
   run:
