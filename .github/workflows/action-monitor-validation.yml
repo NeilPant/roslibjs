@@ -18,4 +18,14 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run build --workspace=roslib
+      - name: Include backend diagnostics in teardown
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('packages/roslib/test/setup/ros-backend.ts')
+          s = p.read_text()
+          old = '  await stopContainer();\n}'
+          assert s.count(old) == 1
+          p.write_text(s.replace(old, '  console.log(await getLogs());\n' + old))
+          PY
       - run: npm test --workspace=roslib -- --run test/examples/action-monitor.example.ts test/action-topics.test.ts test/action-topics-wire.test.ts test/topic.test.ts test/actionSendgoal.test.ts
